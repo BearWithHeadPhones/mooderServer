@@ -25,5 +25,8 @@ router.register(r'users', views.UserViewSet)
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^', include(router.urls)),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    url(r'^token/',views.token_request),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^auth/', include('rest_framework_social_oauth2.urls')),
+    url(r'^register-by-token/(?P<backend>[^/]+)/$', 'users.views.register_by_access_token')
 ]
