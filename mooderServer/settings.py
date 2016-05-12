@@ -99,6 +99,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mooderServer.wsgi.application'
 
+FACEBOOK_CLIENT_APPID = "265844533750297"
+
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
