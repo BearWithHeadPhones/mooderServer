@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from django.http import JsonResponse
-from rest_framework import viewsets
+from rest_framework import viewsets,status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from users.serializers import UserSerializer, MoodSerializer
@@ -15,18 +15,26 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
 
-@api_view(['GET'])
+@api_view(['GET','POST'])
 def getUsersMoods(request):
-    #token = Token.objects.get(key=request.GET.get('access_token'))
-    #print token
-    #user = token.user
-    userProfile = UserProfile.objects.get(user=request.user)
-    moods = Mood.objects.filter(userProfile=userProfile).order_by('-created')
 
-    print moods
+    if request.method == 'GET':
+        userProfile = UserProfile.objects.get(user=request.user)
+        moods = Mood.objects.filter(userProfile=userProfile).order_by('-created')
+        serializer = MoodSerializer(moods, many=True)
+        return Response(serializer.data)
+    elif request.method == 'POST':
+        print "siemacha"
+        print request.user
+        print request.data.get("moodType")
 
-    serializer = MoodSerializer(moods, many=True)
-    return Response(serializer.data)
+
+        Mood.objects.create(userProfile = UserProfile.objects.get(user=request.user), moodType =request.data.get("moodType"))
+        return Response(request.data, status=status.HTTP_201_CREATED)
+        #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 
 
 
@@ -72,4 +80,4 @@ def register_by_access_token(request, backend):
             return "ERROR"
 
     else:
-        return JsonResponse({"lipa": "whuj"})
+        return JsonResponse(status.HTTP_401_UNAUTHORIZED)
