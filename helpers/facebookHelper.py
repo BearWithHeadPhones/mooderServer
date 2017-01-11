@@ -13,8 +13,7 @@ def validateUserByToken(third_party_token):
 
 def getUsersFriends(third_party_token, userid):
     h = httplib2.Http()
-    print "SIEMAHCAAAAAAAA"
-    print userid
+
     body = str(userid) + "/friends?access_token=" + third_party_token
     resp, content = h.request("https://graph.facebook.com/" + body, method="GET", body=body)
     print content

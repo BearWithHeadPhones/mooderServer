@@ -19,19 +19,26 @@ class UserViewSet(viewsets.ModelViewSet):
 def getUsersMoods(request):
 
     if request.method == 'GET':
+
         userProfile = UserProfile.objects.get(user=request.user)
-        moods = Mood.objects.filter(userProfile=userProfile).order_by('-created')
+        #moods = Mood.objects.filter(userProfile=userProfile).order_by('-created')
+        moods = []
+        for friend in userProfile.friends.all():
+            print friend
+            friendProfile = UserProfile.objects.get(user=friend)
+            moods += Mood.objects.filter(userProfile=friendProfile).order_by('-created')
+
+        print moods
         serializer = MoodSerializer(moods, many=True)
+        print serializer.data
         return Response(serializer.data)
     elif request.method == 'POST':
         print "siemacha"
         print request.user
         print request.data.get("moodType")
 
-
         Mood.objects.create(userProfile = UserProfile.objects.get(user=request.user), moodType =request.data.get("moodType"))
         return Response(request.data, status=status.HTTP_201_CREATED)
-        #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 def updateUsersFriends(request):
@@ -78,12 +85,14 @@ def register_by_access_token(request, backend):
             Token.objects.create(user=user,
                                 key=new_token)
 
-        for friend in facebookHelper.getUsersFriends(request.GET.get('access_token'),user):
-            user
+            print "friends"
 
-            print "------------------"
-            print new_token
-            print "-------------------"
+            userProfile = UserProfile.objects.get(user=user)
+
+            for friend in facebookHelper.getUsersFriends(request.GET.get('access_token'),user):
+                print friend["id"]
+                userProfile.friends.add(User.objects.get(username = friend["id"]))
+
             return JsonResponse({"token": new_token})
         else:
             return "ERROR"

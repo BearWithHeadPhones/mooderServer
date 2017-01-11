@@ -27,5 +27,6 @@ class Mood(models.Model):
     moodType = models.CharField(max_length=200)
     created = models.DateTimeField(default=timezone.now)
     description = models.CharField(max_length=200, blank=True)
+
     def __str__(self):
         return self.moodType + ":" + self.description + " " + str(self.created) + " for user " + self.userProfile.user.username
