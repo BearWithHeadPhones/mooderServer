@@ -33,6 +33,13 @@ def getUsersMoods(request):
         return Response(request.data, status=status.HTTP_201_CREATED)
         #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['GET'])
+def updateUsersFriends(request):
+
+    if request.method == 'GET':
+        print facebookHelper.getUsersFriends(request.GET.get('access_token'),request.user)
+        return Response(request.data, status=status.HTTP_200_OK)
+
 
 
 
@@ -50,7 +57,6 @@ def register_by_access_token(request, backend):
     # This view expects an access_token GET parameter, if it's needed,
     # request.backend and request.strategy will be loaded with the current
     # backend and strategy.
-
 
     if facebookHelper.validateUserByToken(request.GET.get('access_token')):
         try:
@@ -71,6 +77,9 @@ def register_by_access_token(request, backend):
 
             Token.objects.create(user=user,
                                 key=new_token)
+
+        for friend in facebookHelper.getUsersFriends(request.GET.get('access_token'),user):
+            user
 
             print "------------------"
             print new_token

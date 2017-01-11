@@ -28,5 +28,6 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^auth/', include('rest_framework_social_oauth2.urls')),
     url(r'^register-by-token/(?P<backend>[^/]+)/$', views.register_by_access_token),
-    url(r'^moods/$', views.getUsersMoods)
+    url(r'^moods/$', views.getUsersMoods),
+    url(r'^updateUsersFriends/$',views.updateUsersFriends)
 ]
