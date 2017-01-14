@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from users.serializers import UserSerializer, MoodSerializer
 from users.models import Mood,UserProfile
+from django.utils import timezone
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -28,23 +29,25 @@ def getUsersMoods(request):
             friendProfile = UserProfile.objects.get(user=friend)
             moods += Mood.objects.filter(userProfile=friendProfile).order_by('-created')
 
-        print moods
+        #print moods
         serializer = MoodSerializer(moods, many=True)
         print serializer.data
         return Response(serializer.data)
     elif request.method == 'POST':
         print "siemacha"
         print request.user
+        print request.data
         print request.data.get("moodType")
+        print request.data.get("description")
 
-        Mood.objects.create(userProfile = UserProfile.objects.get(user=request.user), moodType =request.data.get("moodType"))
+        Mood.objects.create(userProfile = UserProfile.objects.get(user=request.user), moodType =request.data.get("moodType"),created= timezone.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), description=request.data.get("description"))
         return Response(request.data, status=status.HTTP_201_CREATED)
 
 @api_view(['GET'])
 def updateUsersFriends(request):
 
     if request.method == 'GET':
-        print facebookHelper.getUsersFriends(request.GET.get('access_token'),request.user)
+        #print facebookHelper.getUsersFriends(request.GET.get('access_token'),request.user)
         return Response(request.data, status=status.HTTP_200_OK)
 
 
@@ -67,7 +70,7 @@ def register_by_access_token(request, backend):
 
     if facebookHelper.validateUserByToken(request.GET.get('access_token')):
         try:
-            user  = User.objects.get(username=request.GET.get('USER'))
+            user = User.objects.get(username=request.GET.get('USER'))
         except:
             user = User.objects.create_user(request.GET.get('USER'))
             models.createUserProfile(user)
@@ -88,9 +91,10 @@ def register_by_access_token(request, backend):
             print "friends"
 
             userProfile = UserProfile.objects.get(user=user)
-
+            userProfile.name = facebookHelper.getUserById(request.GET.get('access_token'),user)["name"]
+            userProfile.save()
             for friend in facebookHelper.getUsersFriends(request.GET.get('access_token'),user):
-                print friend["id"]
+                #print friend["id"]
                 userProfile.friends.add(User.objects.get(username = friend["id"]))
 
             return JsonResponse({"token": new_token})

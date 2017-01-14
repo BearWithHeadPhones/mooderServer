@@ -11,6 +11,7 @@ from django.utils import timezone
 class UserProfile(models.Model):
     user = models.OneToOneField(User)
     friends = models.ManyToManyField(User, related_name='friends',blank=True)
+    name  = models.CharField(max_length=200, blank=True)
     def __str__(self):
         return "Profile of " + self.user.username
 

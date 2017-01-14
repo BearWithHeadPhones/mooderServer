@@ -10,13 +10,12 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    user = UserSerializer(required=True)
     class Meta:
         model = UserProfile
-        fields = ('user',)
+        fields = ('name',)
 
 class MoodSerializer(serializers.ModelSerializer):
     class Meta:
         model = Mood
-        depth = 2
+        depth = 1
         fields = ('userProfile','moodType','created','description')
