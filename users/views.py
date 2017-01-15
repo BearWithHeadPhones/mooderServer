@@ -7,6 +7,7 @@ from rest_framework.decorators import api_view
 from users.serializers import UserSerializer, MoodSerializer
 from users.models import Mood,UserProfile
 from django.utils import timezone
+import operator
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -17,19 +18,22 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 @api_view(['GET','POST'])
-def getUsersMoods(request):
+def getTimelineEntriesFriends(request):
 
     if request.method == 'GET':
 
         userProfile = UserProfile.objects.get(user=request.user)
-        #moods = Mood.objects.filter(userProfile=userProfile).order_by('-created')
+
         moods = []
+        moods += Mood.objects.filter(userProfile=userProfile)
         for friend in userProfile.friends.all():
             print friend
             friendProfile = UserProfile.objects.get(user=friend)
-            moods += Mood.objects.filter(userProfile=friendProfile).order_by('-created')
+            moods += Mood.objects.filter(userProfile=friendProfile)
 
-        #print moods
+        moods = sorted(moods, key=operator.attrgetter('created'), reverse=True)
+
+        print moods
         serializer = MoodSerializer(moods, many=True)
         print serializer.data
         return Response(serializer.data)
@@ -43,12 +47,7 @@ def getUsersMoods(request):
         Mood.objects.create(userProfile = UserProfile.objects.get(user=request.user), moodType =request.data.get("moodType"),created= timezone.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), description=request.data.get("description"))
         return Response(request.data, status=status.HTTP_201_CREATED)
 
-@api_view(['GET'])
-def updateUsersFriends(request):
 
-    if request.method == 'GET':
-        #print facebookHelper.getUsersFriends(request.GET.get('access_token'),request.user)
-        return Response(request.data, status=status.HTTP_200_OK)
 
 
 
@@ -92,6 +91,8 @@ def register_by_access_token(request, backend):
 
             userProfile = UserProfile.objects.get(user=user)
             userProfile.name = facebookHelper.getUserById(request.GET.get('access_token'),user)["name"]
+            print 'USERNAME:' + user.username
+            userProfile.username = user.username
             userProfile.save()
             for friend in facebookHelper.getUsersFriends(request.GET.get('access_token'),user):
                 #print friend["id"]

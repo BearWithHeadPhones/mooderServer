@@ -12,13 +12,14 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User)
     friends = models.ManyToManyField(User, related_name='friends',blank=True)
     name  = models.CharField(max_length=200, blank=True)
+    username = models.CharField(max_length=200, blank=True)
     def __str__(self):
         return "Profile of " + self.user.username
 
 
 def createUserProfile(user):
     if not UserProfile.objects.filter(user=user).exists():
-        userProfile = UserProfile(user=user)
+        userProfile = UserProfile(user=user, username = user.username)
         userProfile.save()
 
 

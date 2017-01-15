@@ -12,7 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ('name',)
+        fields = ('name','username')
 
 class MoodSerializer(serializers.ModelSerializer):
     class Meta:
