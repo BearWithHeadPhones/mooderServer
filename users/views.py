@@ -95,10 +95,11 @@ def register_by_access_token(request, backend):
             userProfile.username = user.username
             userProfile.save()
             for friend in facebookHelper.getUsersFriends(request.GET.get('access_token'),user):
-                #print friend["id"]
-                foundFriend = User.objects.get(username = friend["id"])
-                if foundFriend:
-                    userProfile.friends.add(foundFriend)
+                try:
+                    userProfile.friends.add(User.objects.get(username = friend["id"]))
+                except:
+                    pass
+
 
             return JsonResponse({"token": new_token})
         else:
