@@ -23,7 +23,8 @@ def getTimelineEntriesFriends(request):
     if request.method == 'GET':
 
         userProfile = UserProfile.objects.get(user=request.user)
-
+        length = int(request.GET.get('length'))
+        print length
         moods = []
         moods += Mood.objects.filter(userProfile=userProfile)
         for friend in userProfile.friends.all():
@@ -33,6 +34,7 @@ def getTimelineEntriesFriends(request):
 
         moods = sorted(moods, key=operator.attrgetter('created'), reverse=True)
 
+        moods = moods[:length*10]
         print moods
         serializer = MoodSerializer(moods, many=True)
         print serializer.data
@@ -67,13 +69,13 @@ def register_by_access_token(request, backend):
     # request.backend and request.strategy will be loaded with the current
     # backend and strategy.
 
+    print "siema"
     if facebookHelper.validateUserByToken(request.GET.get('access_token')):
         try:
             user = User.objects.get(username=request.GET.get('USER'))
         except:
             user = User.objects.create_user(request.GET.get('USER'))
             models.createUserProfile(user)
-            print
         if user:
             try:
                 old = Token.objects.get(user=user)
